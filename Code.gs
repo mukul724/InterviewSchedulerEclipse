@@ -9,6 +9,7 @@ function doGet(){
 
 // includes the file as html in the main page
 function include(filename) {
+	var data =20; //sample patch to check Git updates
   return HtmlService.createHtmlOutputFromFile(filename).getContent(); 
 }
 
