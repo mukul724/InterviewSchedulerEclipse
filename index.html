@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="shortcut icon" href="assets/ico/favicon.png">
+<title>ReTouch - Responsive Multi-Purpose Theme</title>
+<!-- Bootstrap Core CSS -->
+<?!= include('stylesheet') ?>
+<?!= include('bootstrap3') ?>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<?!= include('jquery.timepicker.min') ?>
+<?!= include('bootstrap-datepicker') ?>
+<script type="text/javascript">
+    $(document).ready(function() {
+        var counter = 2;
+        $("#addMoreInterviewer").click(function() {
+            if (counter > 10) {
+                alert("Only 10 Interviewers are allowed");
+                return false;
+            }
+            var newRowDiv = $(document.createElement('div'))
+                .attr("id", 'rowDiv' + counter);
+            newRowDiv.after().html('<div class="row" id="rowDiv" ><div class="col-md-3"><select class="form-control" name="interviewType'+ counter +'" id="interviewType'+ counter +'"><option selected="" value=""> '+ counter +': Select Interview Type... </option><option value="Phone Screen 1"> Phone Screen 1 </option><option value="Phone Screen 2"> Phone Screen 2 </option><option value="Onsite"> Onsite </option><option value="Test"> Test </option><option value="Exploratory Call"> Exploratory Call </option><option value="Debrief"> Debrief </option><option value="Skype Onsite"> Skype Onsite </option><option value="Reference Check"> Reference Check </option></select></div><div class="col-md-3"><select class="form-control" name="competencyType'+ counter +'" id="competencyType'+ counter +'"><option selected=""> '+ counter +': Select Competency... </option><option value="Financial Acumen, Fiancial Ratios, P&L Management">Financial Acumen, Fiancial Ratios, P&L Management</option><option value="Business understanding/ partnering/ ownership">Business understanding/ partnering/ ownership</option><option value="Problem Solving, Analytical capability">Problem Solving, Analytical capability</option><option value="Overall/Finance fitment,Leadership and Drive,Team/Ppl Management">Overall/Finance fitment,Leadership and Drive,Team/Ppl Management</option><option value="Culture Fit,People management skills,Change management">Culture Fit,People management skills,Change management</option><option value="Overall, depth in engagements">Overall, depth in engagements</option><option value="Design and leading">Design and leading</option><option value="Program design, over R&R design">Program design, over R&R design</option><option value="Ability to conceptualize, overall fitment">Ability to conceptualize, overall fitment</option><option value="Program design, understanding">Program design, understanding</option><option value="Partnership & influencing">Partnership & influencing</option><option value="PS/DS"> PS/DS </option><option value="Machine Coding"> Machine Coding </option><option value="Design"> Design </option><option value="Architecture"> Architecture </option><option value="Design/Architecture"> Design/Architecture </option><option value="Hiring Manager Round"> Hiring Manager Round </option><option value="Testing Acumen and Past work"> Testing Acumen and Past work </option><option value="Product Sense and Technology"> Product Sense and Technology </option><option value="Product Sense"> Product Sense </option><option value="Technology"> Technology </option><option value="Testing Acumen"> Testing Acumen </option><option value="UI Tech"> UI Tech </option><option value="Web Dev- Full Stack"> Web Dev- Full Stack </option><option value="Problem Solving/Dev Practices"> Problem Solving/Dev Practices </option><option value="Ownership/Past Experience"> Ownership/Past Experience </option><option value="Performance Management/People management"> Performance Management/People management </option><option value="Org Building and People management"> Org Building and People management </option><option value="Execution and Delivery"> Execution and Delivery </option><option value="Culture Fitment"> Technology </option><option value="Technology"> Technology </option><option value="Product"> Product </option><option value="Product Thinking"> Product Thinking </option><option value="Problem Solving"> Problem Solving </option><option value="Business Understanding"> Business Understanding </option></select></div><div class="col-md-3"><input class="form-control" placeholder="Main Interviewer '+ counter +' " name="mainInterviewer'+ counter +'" id="mainInterviewer'+ counter +'" type="text" value=""></div><div class="col-md-3"><input class="form-control" placeholder="Shadowing Interviewer '+ counter +'" name="shadowingInterviewer'+ counter +'" id="shadowingInterviewer'+ counter +'" type="text" value=""></div></div>');
+            newRowDiv.appendTo("#rowDivGroup");
+            $("#count").val(counter);
+            counter++;
+        });
+        $("#removeInterviewer").click(function() {
+            if (counter == 2) {
+                alert("At least One Interviewer Should be there");
+                return false;
+            }
+            counter--;
+            $("#count").val(counter-1);
+            $("#rowDiv" + counter).remove();
+        });
+        
+    });
+    
+    $( document ).ready(function() {
+      $( "#slots" ).submit(function() {
+        google.script.run.withSuccessHandler(function(retrn){
+          var output = retrn;
+          console.log(output);
+          $("#slots").slideUp();
+          $( "#thank_you" ).show("slow");
+        }).createEvent(this); //"this" is the form element
+      });
+    });
+    
+    
+     $( document ).ready(function() {
+     $( "#interviewSchedulerForm" ).submit(function() {
+     
+     // add all details to second form
+         google.script.run.withSuccessHandler(function(ret){
+          $( "#slots" ).show("slow");
+          var output = ret;
+          console.log(output);
+          var jsonReturn = $.parseJSON(output);
+          var jsonObj = jsonReturn['slotInfo'];
+          //console.log(jsonObj);
+          
+   		var result = "";
+    	result+='<div class="result">';
+		for ( var date in jsonObj )
+		{
+		var data = jsonObj[date];
+	    result+='<div class="panel panel-default" style="margin-top:-13px">';
+		result+='<div class="panel-heading ">';
+		result+='<h4 class="panel-title"><a class="accordion-toggle" href="#collapseOne"> Slots on '+date+'</a></h4>';
+		result+='</div>';
+		result+='<div class="panel-body" style="padding-top:0;">';
+		//result+=data.length;
+				for(var slot in data)
+					{	
+					var dataslot = data[slot];
+					result+='<div>';
+							if(dataslot.length != 0)
+							{	
+								result+='<p><b style="color:#8a8b8a;"> Between '+slot+'</b></p>';
+								for( var key in dataslot)
+								{
+									var combination = dataslot[key];
+									result+='<label class="col-lg-1">';
+                                        var combinationSlot = "";
+                                        var combLen = combination.length;
+                                        
+										for(var interviewer in combination)
+										{ 
+											result+=  combination[interviewer]+',';
+                                            combinationSlot +=  combination[interviewer]+',';
+										}
+                                        result+='<input type="radio" value="'+date+'_'+slot+'_'+combinationSlot+'" id="optionsRadios2" name="calendarBookInfo">';
+										
+									result+='</label>';	
+								}
+							}
+						result+='<div style="clear:both"></div>';
+					result+='</div>';
+					}
+		result+='</div>';
+		result+='</div>';
+		}
+		result+='</div>';
+		$('#mainslot').html(result);
+        
+        
+        var resultFormValues = "";
+        var jsonFormObj = jsonReturn['formValues'];
+        var num =1;
+        
+      for(var keyVal in jsonFormObj)
+      {
+         var dataJFO = jsonFormObj[keyVal];
+         console.log(dataJFO['interviewType1']);
+          resultFormValues += '<input type="hidden" value="'+dataJFO['interviewType'+num]+'" name="interviewType_'+num+'" id="interviewType_'+num+'">';
+          resultFormValues += '<input type="hidden" value="'+dataJFO['competencyType'+num]+'" name="competencyType_'+num+'" id="competencyType_'+num+'">'; 
+          resultFormValues += '<input type="hidden" value="'+dataJFO['mainInterviewer'+num]+'" name="mainInterviewer_'+num+'" id="mainInterviewer_'+num+'">';
+          resultFormValues += '<input type="hidden" value="'+dataJFO['shadowingInterviewer'+num]+'" name="shadowingInterviewer_'+num+'" id="shadowingInterviewer_'+num+'">';
+         num++;
+      }
+      $('#formReturnVal').html(resultFormValues);
+        
+        //  $("#allSlots").text(output);
+          // document.write(output);
+        }).getFormValue(this); //"this" is the form element      
+        });
+    });
+</script>
+
+<!-- <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css"> -->
+</head>
+<body>
+<div id="utter-wrapper" class="color-skin-1">
+	<header id="header" class="header" data-spy="" data-offset-top="10">
+	<nav class="navbar navbar-default" role="navigation">
+	<div class="container">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+			<span class="sr-only">Toggle navigation</span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href="index-2.html">Interview<span> Scheduler </span> v2</a>
+		</div>
+	</div>
+	<!-- /.container -->
+	</nav>
+	<!-- /.navbar -->
+	</header>
+	<!-- /#header -->
+	<div id="contact-2" class="main-wrapper">
+		<!-- /#google-map -->
+		<section id="contact-us" class="pad-25">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+
+					<form class="contact-form" id="interviewSchedulerForm">
+                        <input type="hidden" value="1" name="count" id="count"> 
+						<div class="subpage-title">
+							<h5> Interviewer Details </h5>
+						</div>
+						<div class="row text-center pad-bottom-5">
+							<div class="col-md-3">
+								<b> Interview Type </b>
+							</div>
+							<div class="col-md-3">
+								<b> Competency </b>
+							</div>
+							<div class="col-md-3">
+								<b> Interviewer Email Id </b>
+							</div>
+							<div class="col-md-3">
+								<b> Shadowing (Email Id) </b>
+							</div>
+						</div>
+						<div id="rowDivGroup">
+							<div class="row" id="rowDiv">
+								<div class="col-md-3">
+									<select class="form-control" name="interviewType1" id="interviewType1">
+										<option selected="" value=""> 1: Select Interview Type... </option>
+                                        <option value="Phone Screen 1"> Phone Screen 1 </option>
+                                        <option value="Phone Screen 2"> Phone Screen 2 </option>
+                                        <option value="Onsite"> Onsite </option>
+                                        <option value="Test"> Test </option>
+                                        <option value="Exploratory Call"> Exploratory Call </option>
+                                        <option value="Debrief"> Debrief </option>
+                                        <option value="Skype Onsite"> Skype Onsite </option>
+                                        <option value="Reference Check"> Reference Check </option>
+                                  	</select>
+								</div>
+								<div class="col-md-3">
+									<select class="form-control" name="competencyType1" id="competencyType1">
+										<option selected=""> 1: Select Competency... </option>
+                                        
+                                        
+                                        <option value="Financial Acumen, Fiancial Ratios, P&L Management">Financial Acumen, Fiancial Ratios, P&L Management</option>
+                                        <option value="Business understanding/ partnering/ ownership">Business understanding/ partnering/ ownership</option>
+                                        
+                                        <option value="Problem Solving, Analytical capability">Problem Solving, Analytical capability</option>
+                                        <option value="Overall/Finance fitment,Leadership and Drive,Team/Ppl Management">Overall/Finance fitment,Leadership and Drive,Team/Ppl Management</option>
+                                        <option value="Culture Fit,People management skills,Change management">Culture Fit,People management skills,Change management</option>
+                                        <option value="Overall, depth in engagements">Overall, depth in engagements</option>
+                                        <option value="Design and leading">Design and leading</option>
+                                        <option value="Program design, over R&R design">Program design, over R&R design</option>
+                                        <option value="Ability to conceptualize, overall fitment">Ability to conceptualize, overall fitment</option>
+                                        <option value="Program design, understanding">Program design, understanding</option>
+                                        <option value="Partnership & influencing">Partnership & influencing</option>
+
+                                        
+                                        
+										<option value="PS/DS"> PS/DS </option>
+										<option value="Machine Coding"> Machine Coding </option>
+										<option value="Design"> Design </option>
+                                        <option value="Architecture"> Architecture </option>
+                                        <option value="Design/Architecture"> Design/Architecture </option>
+                                        <option value="Hiring Manager Round"> Hiring Manager Round </option>
+                                        <option value="Testing Acumen and Past work"> Testing Acumen and Past work </option>
+                                        <option value="Product Sense and Technology"> Product Sense and Technology </option>
+                                        <option value="Product Sense"> Product Sense </option>
+                                        <option value="Technology"> Technology </option>
+                                        <option value="Testing Acumen"> Testing Acumen </option>
+                                        <option value="UI Tech"> UI Tech </option>
+                                        <option value="Web Dev- Full Stack"> Web Dev- Full Stack </option>
+                                        <option value="Problem Solving/Dev Practices"> Problem Solving/Dev Practices </option>
+                                        <option value="Ownership/Past Experience"> Ownership/Past Experience </option>
+                                        <option value="Performance Management/People management"> Performance Management/People management </option>
+                                        <option value="Org Building and People management"> Org Building and People management </option>
+                                        <option value="Execution and Delivery"> Execution and Delivery </option>
+                                        <option value="Culture Fitment"> Culture Fitment </option>
+                                        <option value="Technology"> Technology </option>
+                                        <option value="Product"> Product </option>
+                                        <option value="Product Thinking"> Product Thinking </option>
+                                        <option value="Problem Solving"> Problem Solving </option>
+                                        <option value="Business Understanding"> Business Understanding </option>
+									</select>
+								</div>
+								<div class="col-md-3">
+									<input class="form-control" placeholder="Main Interviewer 1 " name="mainInterviewer1" id="mainInterviewer1" type="text" value="">
+								</div>
+								<div class="col-md-3">
+									<input class="form-control" placeholder="Shadowing Interviewer 1" name="shadowingInterviewer1" id="shadowingInterviewer1" type="text" value="">
+								</div>
+							</div>
+						</div>
+						<a class="btn btn-sm btn-flat btn-success btn-rounded" id="addMoreInterviewer">Add More Interviewer</a>
+						<a class="btn btn-sm btn-flat btn-danger btn-rounded" id="removeInterviewer"> Remove Interviewer</a>
+						<div class="subpage-title pad-top-25">
+							<h5> Date Range </h5>
+						</div>
+						<div class="row" id="datepairExample">
+							<div class="col-md-3">
+								<input class="form-control date start" name="startDate" placeholder="Start Date" type="text" value="">
+							</div>
+							<div class="col-md-3">
+								<input class="form-control time start" name="startTime" placeholder="Start Time" type="text" value="">
+							</div>
+							<div class="col-md-3">
+								<input class="form-control time end" name="endTime" placeholder="End Time" type="text" value="">
+							</div>
+							<div class="col-md-3">
+								<input class="form-control date end" name="endDate" placeholder="End Date" type="text" value="">
+							</div>
+						</div>
+						<input type="submit" class="btn btn-flat flat-color btn-rounded btn-sm" id="submitFirstForm" value="Submit Details To Get Best Slot"> 
+					</form>
+					<form id="slots" style="display:none;" class="contact-form pad-top-25" >
+                       
+                       <div class="subpage-title">
+							<h5> GENERAL INFO </h5>
+						</div>
+						<div class="row">
+							<div class="col-md-4">
+								<input class="form-control" placeholder="Candidate Name (required)" type="text" name="candidateName" id="candidateName" value="">
+							</div>
+							<div class="col-md-4">
+								<input class="form-control" placeholder="Candidate Email Id " type="text" name="candaditeEmailId" id="candaditeEmailId" value="" > 
+							</div>
+							<div class="col-md-4">
+								<input class="form-control" placeholder="Subject Title" type="text" name="subjectTitle" id="subjectTitle" value="">
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-6">
+								<select class="form-control" name="recruiter" id="recruiter">
+								   <option selected="" value=""> Recruiter Name </option>
+								   <option value="sandeepkp@flipkart.com" > sandeepkp@flipkart.com </option>
+                                   <option value="sivakumar.kadirvelu@flipkart.com" > sivakumar.kadirvelu@flipkart.com </option>
+                                   <option value="sathish.reddy@flipkart.com" > sathish.reddy@flipkart.com </option>
+                                   <option value="saberi.c@flipkart.com" > saberi.c@flipkart.com </option>
+                                   <option value="swetha.awdhesh@flipkart.com" > swetha.awdhesh@flipkart.com </option>
+                                   <option value="sharmistha.dutta@flipkart.com" > sharmistha.dutta@flipkart.com </option>
+                                   <option value="sharmita.roy@flipkart.com" > sharmita.roy@flipkart.com </option> 
+                                   <option value="sarah.samson@flipkart.com" > sarah.samson@flipkart.com </option>
+                                   <option value="gopal.devarajan@flipkart.com" > gopal.devarajan@flipkart.com </option>
+                                   <option value="meghana.p@flipkart.com" > meghana.p@flipkart.com </option>
+                                   <option value="vijaya.kiran@flipkart.com" > vijaya.kiran@flipkart.com </option>
+                                   <option value="vikram.j@flipkart.com" > vikram.j@flipkart.com </option>
+                                   <option value="priya.sendhil@flipkart.com" > priya.sendhil@flipkart.com </option>
+                                   <option value="mamatha.savanth@flipkart.com" > mamatha.savanth@flipkart.com </option>
+                                   <option value="sudhir.hb@flipkart.com" > sudhir.hb@flipkart.com </option>
+                                   <option value="chidananda.y@flipkart.com" > chidananda.y@flipkart.com </option>
+                                   <option value="mytheli.jayaprakash@flipkart.com" > mytheli.jayaprakash@flipkart.com </option>
+                                   <option value="manoj.kulkarni@flipkart.com" > manoj.kulkarni@flipkart.com </option>
+                                   <option value="ganesh.sharma@flipkart.com" > ganesh.sharma@flipkart.com </option>
+                                   <option value="K.imran@flipkart.com" > K.imran@flipkart.com </option>
+                                   <option value="shwetac@flipkart.com" > shwetac@flipkart.com </option>
+                                   <option value="debleenad@flipkart.com" > debleenad@flipkart.com </option>
+                                   <option value="Aditi.sinha@flipkart.com" > Aditi.sinha@flipkart.com </option>
+                                   <option value="Heena.malhotra@flipkart.com" > Heena.malhotra@flipkart.com </option>
+                                   <option value="Tamoha.sengupta@flipkart" > Tamoha.sengupta@flipkart </option>
+                                   <option value="Ojaswi.katiyar@flipkart.com" > Ojaswi.katiyar@flipkart.com </option>
+                                   <option value="nastest2@flipkart.com" > Nastest2 </option>
+                                </select>
+							</div>
+							<div class="col-md-6">
+								<select class="form-control" name="cordinator" id="cordinator">
+								   <option selected="" value=""> Coordinator Name </option>
+								   <option value="avinash.christy@flipkart.com"> avinash.christy@flipkart.com </option>
+                                   <option value="clarice.dass@flipkart.com"> clarice.dass@flipkart.com </option>
+                                   <option value="chinju.chacko@flipkart.com"> chinju.chacko@flipkart.com  </option>
+                                   <option value="chetan.chudasma@flipkart.com"> chetan.chudasma@flipkart.com </option>
+                                   <option value="chandni.shamdasani@flipkart.com"> chandni.shamdasani@flipkart.com </option>
+                                   <option value="kenneth.vaz@flipkart.com"> kenneth.vaz@flipkart.com </option>
+                                   <option value="divya.pai@flipkart.com"> divya.pai@flipkart.com  </option>
+                                   <option value="jyotsna.mamidi@flipkart.com"> jyotsna.mamidi@flipkart.com </option>
+                                   <option value="sonal.somani@flipkart.com"> sonal.somani@flipkart.com </option>
+                                   <option value="tony.simon@flipkart.com"> tony.simon@flipkart.com </option>
+                                   <option value="prachi.modi@flipkart.com"> prachi.modi@flipkart.com </option>
+                                   <option value="Annalisa.u@flipkart.com">   Annalisa.u@flipkart.com </option>
+                                   <option value="Varsha.olety@flipkart.com"> Varsha.olety@flipkart.com </option>
+                                   <option value="madhu.mp@flipkart.com"> madhu.mp@flipkart.com </option>                                   
+                                   <option value="nastest3@flipkart.com" > Nastest3 </option>
+                                </select>
+							</div>
+						</div>
+
+						<div class="panel panel-flipkart pad-top-25">
+							<div class="panel-heading">
+								Slots
+							</div>
+                           <div class="panel-body slots" style="padding-top:2%" id="mainslot" style="overflow-x: hidden; max-height:400px">
+		
+                           </div>
+                           <div class="panel-body slots" style="padding-top:2%" id="formReturnVal">
+		
+                           </div>
+						
+                            
+                         </div>
+                         <input type="submit" class="btn btn-success flat-color btn-rounded btn-sm" id="submitSecondForm" value="Submit and Book Slot">
+						</form>
+						<!-- /.contact-form -->
+					</div>
+                    <div id="thank_you" hidden="true">
+                    
+                          <h2> Thank you!!! Schedule Another Interview !!! </h2>
+                    </div>
+				</div>
+				<!-- /.row -->
+			</div>
+			<!-- /.container -->
+			</section>
+			<!-- /#contact-us -->
+		</div>
+		<!-- /.main-wrapper -->
+		<footer id="footer-1" class="footer">
+		<div class="container">
+			<div class="row">
+				<div class="col-xs-12 col-sm-6 footer-info-wrapper">
+					<span>Flipkart © 2014. All Rights Reserved. <a href="#">Interview Scheduler v2 </a> Powered.</span>
+				</div>
+				<!-- /.footer-info-wrapper -->
+				<div class="col-xs-12 col-sm-6 footer-links-wrapper">
+					<ul class="list-inline">
+						<li>Developed by :<a href="#"> Atul Joshi</a></li>
+						<li><a href="#">Terms Of Service</a></li>
+						<li><a href="#">Disclaimer</a></li>
+					</ul>
+				</div>
+				<!-- /.footer-links-wrapper -->
+			</div>
+			<!-- /.row -->
+		</div>
+		<!-- /.container -->
+		</footer>
+		<!-- /#footer-2 -->
+	</div>
+	<script src="http://jonthornton.github.io/Datepair.js/dist/datepair.js"></script>
+	<script src="http://jonthornton.github.io/Datepair.js/dist/jquery.datepair.js"></script>
+	<script>
+                $('#datepairExample .time').timepicker({
+                    'timeFormat': 'H:i:s',
+                });
+                $('#datepairExample .date').datepicker({
+                    'format': 'm/d/yyyy',
+                    'autoclose': true
+                });
+                $('#datepairExample').datepair();
+                $('#dateExample .date').datepicker({
+                    'format': 'm/d/yyyy',
+                    'autoclose': true
+                });
+            </script>
+	
+	</body>
+	</html>
+    
+    
+    <!-- 
+    <!-- This part will be developed in Version 3
+                            <div class="col-md-12 pad-25" hidden="true">
+								<div class="subpage-title">
+									<h5>Free Busy App</h5>
+								</div>
+								<div class="pad-bottom-25">
+									<div class="entry">
+										 08 - 09 AM
+									</div>
+									<div class="entry">
+										 09 - 10
+									</div>
+									<div class="entry">
+										 10 - 11
+									</div>
+									<div class="entry">
+										 11 - 12
+									</div>
+									<div class="entry">
+										 12 - 01
+									</div>
+									<div class="entry">
+										 01 - 02
+									</div>
+									<div class="entry">
+										 02 - 03
+									</div>
+									<div class="entry">
+										 03 - 04
+									</div>
+									<div class="entry">
+										 04 - 05
+									</div>
+									<div class="entry">
+										 05 - 06
+									</div>
+									<div class="entry">
+										 06 - 07
+									</div>
+									<div class="entry">
+										 07 - 08
+									</div>
+									<div class="entry">
+										 08 - 09
+									</div>
+								</div>
+								<div class="bs-example">
+									<div class="progress">
+										<div style="width: 15%" class="progress-bar progress-bar-success active progress-striped">
+											<span>08:00-09:30</span>
+										</div>
+										<div style="width: 20%" class="progress-bar progress-bar-danger">
+											<span>09:30-12:00</span>
+										</div>
+										<div style="width: 10%" class="progress-bar progress-bar-success active progress-striped">
+											<span>12:00 - 13:00</span>
+										</div>
+										<div style="width: 5%" class="progress-bar progress-bar-danger">
+											<span>13:00 - 14:00</span>
+										</div>
+										<div style="width: 30%" class="progress-bar progress-bar-success active progress-striped">
+											<span>14:00-16:00</span>
+										</div>
+										<div style="width: 20%" class="progress-bar progress-bar-danger">
+											<span>16:00-20:00</span>
+										</div>
+									</div>
+									<div class="progress">
+										<div style="width: 5%" class="progress-bar progress-bar-success active progress-striped">
+											<span>08:00-09:30</span>
+										</div>
+										<div style="width: 20%" class="progress-bar progress-bar-danger">
+											<span>09:30-12:00</span>
+										</div>
+										<div style="width: 20%" class="progress-bar progress-bar-success active progress-striped">
+											<span>12:00 - 13:00</span>
+										</div>
+										<div style="width: 25%" class="progress-bar progress-bar-danger">
+											<span>13:00 - 14:00</span>
+										</div>
+										<div style="width: 10%" class="progress-bar progress-bar-success active progress-striped">
+											<span>14:00-16:00</span>
+										</div>
+										<div style="width: 20%" class="progress-bar progress-bar-danger">
+											<span>16:00-20:00</span>
+										</div>
+									</div>
+									<div class="progress">
+										<div style="width: 10%" class="progress-bar progress-bar-success active progress-striped">
+											<span>08:00-09:30</span>
+										</div>
+										<div style="width: 20%" class="progress-bar progress-bar-danger">
+											<span>09:30-12:00</span>
+										</div>
+										<div style="width: 15%" class="progress-bar progress-bar-success active progress-striped">
+											<span>12:00 - 13:00</span>
+										</div>
+										<div style="width: 5%" class="progress-bar progress-bar-danger">
+											<span>13:00 - 14:00</span>
+										</div>
+										<div style="width: 20%" class="progress-bar progress-bar-success active progress-striped">
+											<span>14:00-16:00</span>
+										</div>
+										<div style="width: 30%" class="progress-bar progress-bar-danger">
+											<span>16:00-20:00</span>
+										</div>
+									</div>
+									<div class="progress">
+										<div style="width: 25%" class="progress-bar progress-bar-success active progress-striped">
+											<span>08:00-09:30</span>
+										</div>
+										<div style="width: 20%" class="progress-bar progress-bar-danger">
+											<span>09:30-12:00</span>
+										</div>
+										<div style="width: 15%" class="progress-bar progress-bar-success active progress-striped">
+											<span>12:00 - 13:00</span>
+										</div>
+										<div style="width: 15%" class="progress-bar progress-bar-danger">
+											<span>13:00 - 14:00</span>
+										</div>
+										<div style="width: 5%" class="progress-bar progress-bar-success active progress-striped">
+											<span>14:00-16:00</span>
+										</div>
+										<div style="width: 20%" class="progress-bar progress-bar-danger">
+											<span>16:00-20:00</span>
+										</div>
+									</div>
+								</div>
+							</div>
+
+    
+    -->
